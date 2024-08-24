@@ -10,7 +10,7 @@ export const removeFirstZeros = (value :string) :string => value.replace(/^(-)?[
 export const getBeautifulNumber = (value : number, separator : string = ' ') : string =>
   value?.toString().replace(/\B(?=(\d{3})+(?!\d))/g, separator);
 
-export const round = (value :number, accuracy :number = 2) => {
+export const round = (value :number, accuracy = 2):number => {
   const d = 10 ** accuracy;
   return Math.round(value * d) / d;
 };
@@ -18,7 +18,13 @@ export const round = (value :number, accuracy :number = 2) => {
 const transformRegexp =
   /(matrix\(-?\d+(\.\d+)?, -?\d+(\.\d+)?, -?\d+(\.\d+)?, -?\d+(\.\d+)?, )(-?\d+(\.\d+)?), (-?\d+(\.\d+)?)\)/;
 
-export const getTransformFromCss = (transformCssString : string) : {x : number, y : number}  => {
+  
+  
+  type Transform = {
+    x : number;
+    y : number;
+  }
+export const getTransformFromCss = (transformCssString : string) : Transform  => {
   const data = transformCssString.match(transformRegexp);
   if (!data) return { x: 0, y: 0 };
   return {
@@ -36,7 +42,7 @@ export const getContrastType = (contrastValue : number) : string => (contrastVal
 export const shortColorRegExp = /^#[0-9a-f]{3}$/i;
 export const longColorRegExp = /^#[0-9a-f]{6}$/i;
 
-export const checkColor = (color : string) : void => {
+export const checkColor = (color : string) : void | Error =>  {
   if (!longColorRegExp.test(color) && !shortColorRegExp.test(color)) throw new Error(`invalid hex color: ${color}`);
 };
 
@@ -63,7 +69,7 @@ export const getNumberedArray = (arr : any[]) : Array<NumberedArrayElement<any>>
   return arr.map<NumberedArrayElement<any>>((value, number) => ({ value, number }));
 } 
 
-export const toStringArray = (arr : any[]) : string[] => arr.map(({ value, number }) => `${value}_${number}`);
+export const toStringArray = (arr :  Array<NumberedArrayElement<any>>) : string[] => arr.map(({ value, number }) => `${value}_${number}`);
 
 type Customer = {
   id: number;
@@ -72,9 +78,17 @@ type Customer = {
   isSubscribed : boolean;
 }
 
-export const transformCustomers = (customers : Array<Customer>) : {[key: number ]: Omit<Customer, 'id'> } => {
-  return customers.reduce((acc, customer) => {
-    acc[customer.id] = { name: customer.name, age: customer.age, isSubscribed: customer.isSubscribed };
+type TransformedCustomer = {
+  [key: number]: Omit<Customer, 'id'> 
+}
+
+export const transformCustomers = (customers: Customer[]): TransformedCustomer => {
+  return customers.reduce((acc: TransformedCustomer, customer) => {
+    acc[customer.id] = { 
+      name: customer.name, 
+      age: customer.age, 
+      isSubscribed: customer.isSubscribed 
+    };
     return acc;
-  }, {} as {[key: number] : Omit<Customer, 'id'>});
+  }, {});
 };
